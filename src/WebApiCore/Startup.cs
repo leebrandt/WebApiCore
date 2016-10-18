@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using WebApiCore.Data;
+using WebApiCore.Models;
 
 namespace WebApiCore
 {
@@ -34,10 +34,17 @@ namespace WebApiCore
         // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
+            //services.AddDbContext<ApiContext>(opt => opt.UseInMemoryDatabase());
+
+            services.AddSingleton<MovieService, InMemoryMovieService>();
+
             // Add framework services.
             services.AddApplicationInsightsTelemetry(Configuration);
 
-            services.AddMvc();
+            services.AddMvc().AddJsonOptions(options => 
+            {
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
@@ -50,7 +57,13 @@ namespace WebApiCore
 
             app.UseApplicationInsightsExceptionTelemetry();
 
-            app.UseMvc();
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "default",
+                    template: "api/{controller=Api}/{action=Get}/{id?}"
+                );
+            });
         }
     }
 }

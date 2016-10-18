@@ -3,24 +3,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using WebApiCore.Data;
+
+// For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace WebApiCore.Controllers
 {
     [Route("api/[controller]")]
-    public class ValuesController : Controller
+    public class ActorsController : Controller
     {
-        // GET api/values
-        [HttpGet]
-        public IEnumerable<string> Get()
+        private MovieService _movieService;
+
+        public ActorsController(MovieService movieService)
         {
-            return new string[] { "value1", "value2" };
+            _movieService = movieService;
+        }
+        // GET: api/values
+        [HttpGet]
+        public IActionResult Get()
+        {
+            return Ok(_movieService.GetAllActors());
         }
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public IActionResult Get(int id)
         {
-            return "value";
+            return Ok(_movieService.GetActorById(id));
         }
 
         // POST api/values
